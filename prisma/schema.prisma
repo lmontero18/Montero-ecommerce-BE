@@ -8,42 +8,40 @@ datasource db {
 }
 
 model Category {
-  id        Int                @id @default(autoincrement())
-  name      String             @unique
-  products  ProductCategory[]  
+  id       Int               @id @default(autoincrement())
+  name     String            @unique
+  products ProductCategory[]
 
   @@map("categories")
 }
 
 model Product {
-  id            Int                @id @default(autoincrement())
-  uuid          String             @unique @default(uuid())
+  id            Int               @id @default(autoincrement())
+  uuid          String            @unique @default(uuid())
   name          String
   description   String
   price         Float
   originalPrice Float
   discount      Float
   rating        Float
-  createdAt     DateTime           @default(now()) @map("created_at")
-  updatedAt     DateTime           @updatedAt @map("updated_at")
-  deletedAt     DateTime?          @map("deleted_at")
-
-  categories     ProductCategory[]
-  variants       ProductVariant[]
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+  deletedAt     DateTime?         @map("deleted_at")
+  categories    ProductCategory[]
+  variants      ProductVariant[]
 
   @@map("products")
 }
 
 model ProductVariant {
-  id         Int     @id @default(autoincrement())
-  uuid       String  @unique @default(uuid())
-  productId  Int
-  size       String
-  color      String
-  stock      Int
-  sku        String  @unique
-
-  product    Product @relation(fields: [productId], references: [id])
+  id        Int     @id @default(autoincrement())
+  uuid      String  @unique @default(uuid())
+  productId Int
+  size      String
+  color     String
+  stock     Int
+  sku       String  @unique
+  product   Product @relation(fields: [productId], references: [id])
 
   @@unique([productId, size, color])
   @@map("product_variants")
@@ -53,9 +51,8 @@ model ProductCategory {
   id         Int      @id @default(autoincrement())
   productId  Int
   categoryId Int
-
-  product    Product  @relation(fields: [productId], references: [id])
   category   Category @relation(fields: [categoryId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
 
   @@unique([productId, categoryId])
   @@map("product_categories")
