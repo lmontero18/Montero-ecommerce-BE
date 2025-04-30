@@ -7,6 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        Int       @id @default(autoincrement())
+  uuid      String    @unique
+  email     String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  orders    Order[]  
+}
+
 model Category {
   id       Int               @id @default(autoincrement())
   name     String            @unique
@@ -29,6 +38,7 @@ model Product {
   deletedAt     DateTime?         @map("deleted_at")
   categories    ProductCategory[]
   variants      ProductVariant[]
+  images        ProductImage[] 
 
   @@map("products")
 }
@@ -42,6 +52,7 @@ model ProductVariant {
   stock     Int
   sku       String  @unique
   product   Product @relation(fields: [productId], references: [id])
+  orderItems OrderItem[]
 
   @@unique([productId, size, color])
   @@map("product_variants")
@@ -57,3 +68,46 @@ model ProductCategory {
   @@unique([productId, categoryId])
   @@map("product_categories")
 }
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  url       String
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("product_images")
+}
+model Order {
+  id        Int         @id @default(autoincrement())
+  userId    Int
+  status    OrderStatus @default(PENDING)
+  total     Float
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  user      User        @relation(fields: [userId], references: [id])
+  items     OrderItem[]
+
+  @@map("orders")
+}
+
+
+model OrderItem {
+  id               Int             @id @default(autoincrement())
+  orderId          Int
+  productVariantId Int
+  quantity         Int
+  price            Float
+
+  order            Order           @relation(fields: [orderId], references: [id])
+  variant          ProductVariant  @relation(fields: [productVariantId], references: [id])
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  FAILED
+}
+

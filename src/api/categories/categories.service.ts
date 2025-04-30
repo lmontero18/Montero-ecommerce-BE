@@ -8,12 +8,9 @@ export class CategoriesService {
 
   async findAll() {
     return this.prisma.category.findMany({
-      include: {
-        products: {
-          include: {
-            product: true,
-          },
-        },
+      select: {
+        id: true,
+        name: true,
       },
     });
   }
