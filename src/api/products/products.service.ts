@@ -198,7 +198,6 @@ export class ProductsService {
       },
     });
 
-    console.log('📦 Productos devueltos:', result.length);
     return result;
   }
   async updateProduct(
@@ -287,5 +286,27 @@ export class ProductsService {
         categories: { include: { category: true } },
       },
     });
+  }
+  async decreaseStock(items: { variantId: number; quantity: number }[]) {
+    for (const item of items) {
+      const variant = await this.prisma.productVariant.findUnique({
+        where: { id: item.variantId },
+      });
+
+      if (!variant) {
+        throw new Error(`❌ Variant ${item.variantId} not found`);
+      }
+
+      if (variant.stock < item.quantity) {
+        throw new Error(`❌ Not enough stock for variant ${item.variantId}`);
+      }
+
+      await this.prisma.productVariant.update({
+        where: { id: item.variantId },
+        data: {
+          stock: { decrement: item.quantity },
+        },
+      });
+    }
   }
 }
